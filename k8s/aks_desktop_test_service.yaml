@@ -1,0 +1,24 @@
+# AKS Desktop - Kubernetes Service for test
+# Generated on 2025-09-09T18:22:52.189Z
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-service
+  namespace: default
+  labels:
+    app.kubernetes.io/name: test
+    app.kubernetes.io/part-of: test-project
+    kubernetes.azure.com/generator: aks-desktop
+    app: test
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app.kubernetes.io/name: test
+  # LoadBalancer configuration
+  # External traffic will be routed to this service
+  # Azure will provision a public IP address
