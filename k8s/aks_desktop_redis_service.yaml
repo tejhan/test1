@@ -1,0 +1,21 @@
+# AKS Desktop - Kubernetes Service for redis
+# Generated on 2025-09-09T16:13:20.793Z
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  namespace: default
+  labels:
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/part-of: redis-project
+    kubernetes.azure.com/generator: aks-desktop
+    app: redis
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app.kubernetes.io/name: redis
