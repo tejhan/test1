@@ -1,5 +1,5 @@
 # AKS Desktop - Kubernetes Service for redis
-# Generated on 2025-09-17T16:50:36.236Z
+# Generated on 2025-09-17T17:12:42.040Z
 apiVersion: v1
 kind: Service
 metadata:
