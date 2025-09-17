@@ -1,5 +1,5 @@
 # AKS Desktop - Kubernetes Deployment for redis
-# Generated on 2025-09-17T17:12:42.040Z
+# Generated on 2025-09-17T17:39:11.909Z
 apiVersion: apps/v1
 kind: Deployment
 metadata:
