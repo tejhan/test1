@@ -1,17 +1,17 @@
-name: Deploy nginx
+name: Deploy redis
 
 on:
   push:
     branches:
       - "main"
     paths:
-      - 'k8s/nginx-deployment.yaml'
-      - '.github/workflows/deploy-nginx.yml'
+      - 'k8s/redis-deployment.yaml'
+      - '.github/workflows/deploy-redis.yml'
   pull_request:
     branches:
       - "main"
     paths:
-      - 'k8s/nginx-deployment.yaml'
+      - 'k8s/redis-deployment.yaml'
   workflow_dispatch:
     inputs:
       environment:
@@ -31,7 +31,7 @@ env:
   AKS_CLUSTER_NAME: ${{ secrets.AKS_CLUSTER_NAME }}
   AKS_RESOURCE_GROUP: ${{ secrets.AKS_RESOURCE_GROUP }}
   DEPLOYMENT_NAMESPACE: default
-  APP_NAME: nginx
+  APP_NAME: redis
 
 jobs:
 
@@ -77,7 +77,7 @@ jobs:
     - name: Deploy application
       run: |
         echo "Deploying ${{ env.APP_NAME }} to namespace ${{ env.DEPLOYMENT_NAMESPACE }}"
-        kubectl apply -f k8s/nginx-deployment.yaml
+        kubectl apply -f k8s/redis-deployment.yaml
         
     - name: Wait for rollout completion
       run: |
@@ -86,21 +86,21 @@ jobs:
     - name: Verify deployment
       run: |
         echo "Verifying deployment..."
-        kubectl get pods -n ${{ env.DEPLOYMENT_NAMESPACE }} -l app=nginx
-        kubectl get services -n ${{ env.DEPLOYMENT_NAMESPACE }} -l app=nginx
+        kubectl get pods -n ${{ env.DEPLOYMENT_NAMESPACE }} -l app=redis
+        kubectl get services -n ${{ env.DEPLOYMENT_NAMESPACE }} -l app=redis
         
         # Check if all pods are ready
-        kubectl wait --for=condition=ready pod -l app=nginx -n ${{ env.DEPLOYMENT_NAMESPACE }} --timeout=300s
+        kubectl wait --for=condition=ready pod -l app=redis -n ${{ env.DEPLOYMENT_NAMESPACE }} --timeout=300s
 
     - name: Get service information
       run: |
         echo "Service information:"
-        kubectl get svc -n ${{ env.DEPLOYMENT_NAMESPACE }} -l app=nginx -o wide
+        kubectl get svc -n ${{ env.DEPLOYMENT_NAMESPACE }} -l app=redis -o wide
         
         # If LoadBalancer, show external IP
-        if kubectl get svc -n ${{ env.DEPLOYMENT_NAMESPACE }} -l app=nginx -o jsonpath='{.items[0].spec.type}' | grep -q "LoadBalancer"; then
+        if kubectl get svc -n ${{ env.DEPLOYMENT_NAMESPACE }} -l app=redis -o jsonpath='{.items[0].spec.type}' | grep -q "LoadBalancer"; then
           echo "Waiting for LoadBalancer external IP..."
-          kubectl get svc -n ${{ env.DEPLOYMENT_NAMESPACE }} -l app=nginx --watch --timeout=300s
+          kubectl get svc -n ${{ env.DEPLOYMENT_NAMESPACE }} -l app=redis --watch --timeout=300s
         fi
 
     - name: Run post-deployment tests
@@ -108,7 +108,7 @@ jobs:
         echo "Running basic connectivity tests..."
         
         # Test pod connectivity
-        POD_NAME=$(kubectl get pods -n ${{ env.DEPLOYMENT_NAMESPACE }} -l app=nginx -o jsonpath='{.items[0].metadata.name}')
+        POD_NAME=$(kubectl get pods -n ${{ env.DEPLOYMENT_NAMESPACE }} -l app=redis -o jsonpath='{.items[0].metadata.name}')
         if [ ! -z "$POD_NAME" ]; then
           echo "Testing connectivity to pod $POD_NAME"
           kubectl exec -n ${{ env.DEPLOYMENT_NAMESPACE }} $POD_NAME -- /bin/sh -c "echo 'Pod is responsive'"
@@ -144,6 +144,6 @@ jobs:
     - name: Show deployment status
       run: |
         echo "Deployment failed. Showing current status:"
-        kubectl get pods -n ${{ env.DEPLOYMENT_NAMESPACE }} -l app=nginx
+        kubectl get pods -n ${{ env.DEPLOYMENT_NAMESPACE }} -l app=redis
         kubectl describe deployment ${{ env.APP_NAME }} -n ${{ env.DEPLOYMENT_NAMESPACE }}
-        kubectl logs -n ${{ env.DEPLOYMENT_NAMESPACE }} -l app=nginx --tail=50
+        kubectl logs -n ${{ env.DEPLOYMENT_NAMESPACE }} -l app=redis --tail=50
